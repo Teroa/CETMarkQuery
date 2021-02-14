@@ -24,7 +24,7 @@ main.py为不自动识别验证码版本，newmain.py为自动识别验证码版
 - 下载main.py或newmain.py(区别见上文)
   - **如果使用newmain.py，需要另行下载(可在下方博客链接内下载)或训练验证码识别模块model.pth并与newmain.py放在一起才可正常使用!**
   - **model.pth为验证码识别模块！使用newmain.py时请勿删除！**
-  - 博客地址: https://bytegoing.com/archives/CET_Mark_query_automatically_detect_verify_code.html
+  - 博客地址: https://bytegoing.com/archives/45
 - 按照下方的配置说明中正确地写入studentListExcel(studentList.xlsx)文件并与程序文件放在一起.
 - 命令行下运行main.py或newmain.py即可。
 
@@ -51,7 +51,7 @@ main.py为不自动识别验证码版本，newmain.py为自动识别验证码版
 
 测试集420张验证码, 训练集1695张验证码。(新训练集和模型文件可在本人博客下载)
 
-博客地址: https://bytegoing.com/archives/CET_Mark_query_automatically_detect_verify_code.html
+博客地址: https://bytegoing.com/archives/45
 
 batch_size改为了32, 使用CUDA10.
 
