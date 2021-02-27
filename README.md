@@ -39,14 +39,14 @@ main.py为不自动识别验证码版本，newmain.py为自动识别验证码版
   - 默认地址finalResultExcel = 'finalResult.xlsx'
   
 **以下均为程序运行时可以设置的变量**
-- queryYear为查询成绩的年份。如要查询2019年上半年考试此变量应为19.不要去掉引号
-  - queryYear = '19'
-- queryTime为查询第几次考试。如要查询2019年上半年考试此变量应为1,下半年应为2.不要去掉引号
-  - queryTime = '1'
+- queryYear为查询成绩的年份。如要查询2019年上半年考试此变量应为2019.不要去掉引号
+  - queryYear = '2020'
+- queryTime为考试月份。如要查询2019年上半年考试此变量应为06,下半年应为12.不要去掉引号
+  - queryTime = '12'
 - passExamMark为及格线。大于等于此成绩为及格.
   - passExamMark = 425
-- 默认查询类型 CET4/CET6
-  - cxlx = 'CET4'
+- 默认查询类型 CET
+  - cxlx = 'CET'
 
 # 验证码识别模型说明:
 自己参照 https://github.com/ice-tong/pytorch-captcha 大神的教程自行训练而成。
