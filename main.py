@@ -106,14 +106,17 @@ studentListExcel = 'studentList.xlsx'
 # finalResult.xlsx为最终结果存储表，该表结构如下：(会自动生成题头)
 # |准考证号|姓名|查询类型|大学名称|总分|听力|阅读|写作和翻译|口试准考证号|口试等级|
 finalResultExcel = 'finalResult.xlsx'
-# queryYear为查询成绩的年份。如要查询2019年上半年考试此变量应为19.不要去掉引号
-queryYear = '19'
+# queryYear为查询成绩的年份。如要查询2019年上半年考试此变量应为2020.不要去掉引号
+queryYear = '2020'
 # queryTime为查询第几次考试。如要查询2019年上半年考试此变量应为1,下半年应为2.不要去掉引号
-queryTime = '1'
+# 现更改为月份
+queryTime = '12'
 # passExamMark为及格线。大于等于此成绩为及格.
 passExamMark = 425
-# 默认查询类型 CET4/CET6
-cxlx = 'CET4'
+# 默认查询类型 CET4/CET6，
+# 不继续区分
+
+cxlx = 'CET'
 
 if not os.path.exists(studentListExcel):
     print("学生信息表不存在!")
@@ -148,29 +151,30 @@ print("准备完成。")
 
 queryYearTmp = input("本程序查询为"+queryYear+"年考试，是否正确？正确请直接按回车，不正确请输入年份后两位后回车。")
 if queryYearTmp.isdecimal():
-    if(len(queryYearTmp) == 2):
+    if(len(queryYearTmp) == 4):
         queryYear = queryYearTmp
         print("输入了"+queryYear)
     else:
-        print("输入只能为2位数!退出.")
+        print("输入只能为4位数!退出.")
         exit()
 elif len(queryYearTmp) == 0 or queryYearTmp.isspace():
     print("无输入,继续")
 else:
     print("输入非数字!退出.")
     exit()
-queryTimeTmp = input("本程序查询为当年第"+queryTime+"次考试。上半年为1，下半年为2.正确请直接按回车，不正确请输入1或2后回车。")
-if queryTimeTmp == '1' or queryTimeTmp == '2':
+queryTimeTmp = input("本程序查询为当年"+queryTime+"月份考试。上半年为06，下半年为12.正确请直接按回车，不正确请输入06或12后回车。")
+if queryTimeTmp == '06' or queryTimeTmp == '12':
     queryTime = queryTimeTmp
     print("输入了"+queryTime)
-elif queryTimeTmp == 1 or queryTimeTmp == 2:
+elif queryTimeTmp == 6 or queryTimeTmp == 12:
     queryTime = str(queryTimeTmp)
     print("输入了" + queryTime)
 elif len(queryTimeTmp) == 0 or queryTimeTmp.isspace():
     print("无输入,继续")
 else:
-    print("输入错误!只能输入1或2,退出.")
+    print("输入错误!只能输入06或12,退出.")
     exit()
+'''不再区分CET4/6
 cxlxTmp = input("本程序查询为"+cxlx+"考试。英语四级为CET4，英语六级为CET6.正确请直接回车,不正确请输入CET4或CET6后回车")
 if cxlxTmp == 'CET4' or cxlxTmp == 'CET6':
     cxlx = cxlxTmp
@@ -180,6 +184,7 @@ elif len(cxlxTmp) == 0 or cxlxTmp.isspace():
 else:
     print("输入错误!只能输入CET4或CET6,退出.")
     exit()
+'''
 
 print("开始爬取。")
 j = 0
@@ -189,12 +194,13 @@ while j < allStudents:
     xm = studentList[j][1]
     zkzh_parse = parse.quote(zkzh)
     print("进度: 第"+str(j+1)+"个，共"+str(allStudents)+"个。正在爬取: 姓名:" + xm + " 准考证号: " + zkzh + " 查询类型: "+cxlx)
-    mainUrl = 'http://cache.neea.edu.cn/cet/query'
+    mainUrl = 'http://cachecloud.neea.cn/cet/query'
     captchaUrl = 'http://cache.neea.edu.cn/Imgs.do?c=CET&ik='+zkzh+'&t='+str(random.random())
     print("本次查询使用url: " + mainUrl)
     # 开始请求
     resultPage = "ERROR"
     while (resultPage == "ERROR"):
+        '''少量查询无需验证码验证
         # 开始爬取验证码
         reqCode = urllib.request.Request(url=captchaUrl, headers=headers)
         cjar = http.cookiejar.CookieJar()
@@ -219,8 +225,10 @@ while j < allStudents:
             else:
                 getCodeReady = True
         print("输入了验证码: " + nowCode)
-        dataUrl = mainUrl + "?data="+cxlx+"_"+queryYear+queryTime+"_DANGCI,"+zkzh+","+urllib.parse.quote(xm[:3])+"&v="+nowCode
+        '''
+        dataUrl = mainUrl + "?data="+cxlx+"_"+queryYear+queryTime+"_DANGCI,"+zkzh+","+urllib.parse.quote(xm[:3])# +"&v="+nowCode
         print("获取成绩Url: "+dataUrl)
+        
         # 构建请求
         resultReq = urllib.request.Request(url=dataUrl, headers=headers)
         resultPage = str(getPage(resultReq))  # 返回结果
@@ -249,7 +257,7 @@ while j < allStudents:
             rawList = [zkzh, xm, cxlx, "接口错误: "+str(e)+" R:"+resultPage]
         else:
             success = success + 1
-            rawList = [zkzh, xm, cxlx, resultJson['x'], resultJson['s'], resultJson['l'], resultJson['r'],
+            rawList = [zkzh, xm, resultJson['km'], resultJson['x'], resultJson['s'], resultJson['l'], resultJson['r'],
                        resultJson['w'], resultJson['kyz'], resultJson['kys']]
             if resultJson['s'] < passExamMark:
                 print("该学生未通过!")
@@ -264,7 +272,7 @@ while j < allStudents:
 passRate = passexam / success
 
 rawList = ['', '总计', '成功获取:', success, '通过考试人数:', passexam, '通过率', str(passRate*100)+'%']
-print("任务结束! 查询考试类型: "+cxlx+" "+queryYear+"年第"+queryTime+"次考试")
+print("任务结束! 查询考试类型: "+cxlx+" "+queryYear+"年"+queryTime+"月")
 print("总计"+str(allStudents)+"个学生, 成功获取"+str(success)+"个学生, 有"+str(passexam)+"个学生通过考试. 通过率"+str(passRate*100)+"%")
 sheet.append(rawList)  # 追加一行
 print("正在保存...")
